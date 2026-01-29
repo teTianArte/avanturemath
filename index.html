@@ -28,7 +28,8 @@
       background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
       display:flex; align-items:center; justify-content:center; padding:22px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
     
     /* Floating shapes for fun background */
@@ -513,6 +514,8 @@ input[type="text"]{
   body{
     padding: 12px;
     align-items: flex-start; /* better: content starts at top */
+    overflow-y: auto;
+   -webkit-overflow-scrolling: touch;
   }
 
   .logo{ width: 40px; height: 40px; border-radius: 14px; }
@@ -1424,6 +1427,14 @@ input[type="text"]{
       }
     }
   });
+
+  answerEl.addEventListener("focus", () => {
+  setTimeout(() => {
+    // bring the question area back into view when keyboard opens
+    questionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 250);
+});
+
   playerNameEl.addEventListener("input", () => {
     renderLeaderboard();
   });
