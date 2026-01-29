@@ -411,6 +411,182 @@
     width:100%;
     height:100%;
   }
+
+  /* =======================================================
+   RESPONSIVE PATCH (paste at END of <style>)
+   ======================================================= */
+
+/* Make spacing scale a bit nicer */
+:root{
+  --pad: clamp(12px, 2.2vw, 18px);
+}
+
+/* Prevent horizontal scroll on mobile */
+html, body { max-width: 100%; overflow-x: hidden; }
+body { padding: var(--pad); }
+
+/* Main grid: keep desktop, improve middle sizes */
+.app{
+  width: min(1400px, 100%);
+  gap: clamp(12px, 2vw, 18px);
+}
+
+/* Cards: consistent internal padding */
+.main, .side { padding: var(--pad); }
+.header { padding: var(--pad) var(--pad) 0 var(--pad); }
+
+/* Question text: fluid (big on desktop, smaller on phones) */
+.question{
+  font-size: clamp(28px, 6.5vw, 44px);
+  line-height: 1.05;
+}
+
+/* Inputs: better on mobile */
+input[type="text"]{
+  width: min(320px, 100%);
+  font-size: 18px;
+}
+
+/* Controls: wrap nicely */
+.controlsLine{
+  border-radius: 18px;            /* less “pill” on small screens */
+  padding: 10px 12px;
+}
+
+/* Timer pill: don’t overflow */
+.timerPill{
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Scene icons scale a bit */
+.jar, .bag{
+  width: clamp(54px, 14vw, 64px);
+  height: clamp(54px, 14vw, 64px);
+  font-size: clamp(26px, 7vw, 30px);
+}
+.bagCount{
+  right: -6px; top: -8px;
+  font-size: 13px;
+}
+
+/* Leaderboard scroll area adapts */
+.leaderboardList{
+  max-height: clamp(220px, 40vh, 380px);
+}
+#refreshBoardBtn{
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* -------------------------------------------------------
+   TABLET: 2 columns (optional) then 1 column
+   ------------------------------------------------------- */
+@media (max-width: 1200px){
+  .app{
+    grid-template-columns: 1fr;  /* stack */
+  }
+
+  /* Put quiz first, then stats, then leaderboard */
+  .app > section.card { order: 1; }          /* center quiz */
+  .app > aside.card { order: 2; }            /* stats */
+  .app > section.leaderboardCard { order: 3; } /* leaderboard */
+
+  /* Make header elements fit better */
+  .header{
+    gap: 10px;
+  }
+  .brand{
+    flex: 1 1 240px;
+  }
+  .controlsWrap{
+    width: 100%;
+  }
+}
+
+/* -------------------------------------------------------
+   MOBILE: single column, full width controls/buttons
+   ------------------------------------------------------- */
+@media (max-width: 640px){
+  body{
+    padding: 12px;
+    align-items: flex-start; /* better: content starts at top */
+  }
+
+  .logo{ width: 40px; height: 40px; border-radius: 14px; }
+  .title h1{ font-size: 16px; }
+  .title p{ font-size: 12px; }
+
+  /* Stack controls vertically */
+  .controlsLine{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .controlsLine label{
+    margin-top: 2px;
+  }
+  select{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  /* Answer row: make buttons comfortable */
+  .answerRow{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .answerRow .btn,
+  .answerRow input{
+    width: 100%;
+  }
+
+  /* Footer actions full width too */
+  .footerActions{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .footerActions .btn{
+    width: 100%;
+  }
+
+  /* Reduce big background emoji so it doesn't feel busy */
+  body::before, body::after{
+    font-size: 26px;
+    letter-spacing: 60px;
+    opacity: 0.06;
+  }
+
+  /* Slightly smaller avatar for phone */
+  .avatar{
+    width: 72px; height: 72px;
+    border-radius: 16px;
+  }
+
+  /* Keep leaderboard entries readable */
+  .leaderboardEntry{
+    padding: 10px;
+    gap: 10px;
+  }
+  .leaderboardScore{
+    font-size: 16px;
+    min-width: 38px;
+  }
+}
+
+/* -------------------------------------------------------
+   Very small phones (<= 360px)
+   ------------------------------------------------------- */
+@media (max-width: 360px){
+  .question{ font-size: 26px; }
+  .timerPill{ font-size: 16px; }
+  .timerNum{ font-size: 20px; }
+}
+
   </style>
 </head>
 
@@ -564,26 +740,30 @@
 
     <!-- Right: Leaderboard -->
     <section class="card leaderboardCard">
-      <div class="side">
-        <div class="leaderboardHeader">
-          <div class="leaderboardTitle">
-            <span class="trophy">🏆</span>
-            <h2>Tableau des Champions</h2>
-          </div>
-          <div class="leaderboardSubtitle">Top 10 meilleurs joueurs</div>
-        </div>
-
-        <div class="leaderboardList" id="leaderboardList">
-          <!-- Leaderboard entries will be inserted here -->
-        </div>
-
-        <div class="playerNameSection">
-          <label for="playerName" class="nameLabel">Ton nom :</label>
-          <input type="text" id="playerName" class="nameInput" placeholder="Entre ton nom..." maxlength="20" />
-          <div class="nameHint">Entre ton nom pour apparaître dans le classement !</div>
-        </div>
+  <div class="side">
+    <div class="leaderboardHeader">
+      <div class="leaderboardTitle">
+        <span class="trophy">🏆</span>
+        <h2>Tableau des Champions</h2>
       </div>
-    </section>
+      <div class="leaderboardSubtitle">Top 10 meilleurs joueurs</div>
+
+      <!-- <button class="btn btnSoft" id="refreshBoardBtn" type="button">
+        🔄 Rafraîchir
+      </button> -->
+    </div>
+
+    <div class="leaderboardList" id="leaderboardList">
+      <!-- Leaderboard entries will be inserted here -->
+    </div>
+
+    <div class="playerNameSection">
+      <label for="playerName" class="nameLabel">Ton nom :</label>
+      <input type="text" id="playerName" class="nameInput" placeholder="Entre ton nom..." maxlength="20" />
+      <div class="nameHint">Entre ton nom pour apparaître dans le classement !</div>
+    </div>
+  </div>
+</section>
   </div>
 
 <script>
@@ -623,6 +803,7 @@
   // Leaderboard elements
   const playerNameEl = el("playerName");
   const leaderboardListEl = el("leaderboardList");
+  const refreshBoardBtn = el("refreshBoardBtn");
 
   // Scene elements
   const avatarBoxEl = el("avatar");
@@ -1243,12 +1424,14 @@
       }
     }
   });
-
- 
   playerNameEl.addEventListener("input", () => {
     renderLeaderboard();
   });
-
+//if (refreshBoardBtn) {
+  //refreshBoardBtn.addEventListener("click", () => {
+    //renderLeaderboard();
+ // });
+//}
   // Initial UI
   updatePlayerUI();
   updateStars();
