@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aventure mathématique (3e année)</title>
+  <style>
+    :root{
+      --bg1:#f7fbff; --bg2:#fff7fb; --card:#ffffffcc;
+      --text:#16213e; --muted:#5b6b8a;
+      --good:#16a34a; --bad:#dc2626;
+      --accent:#2563eb; --accent2:#a855f7;
+      --shadow: 0 12px 30px rgba(22,33,62,.12);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text); min-height:100vh;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 200, 87, 0.15) 0%, transparent 25%),
+        radial-gradient(circle at 80% 30%, rgba(147, 197, 253, 0.2) 0%, transparent 30%),
+        radial-gradient(circle at 40% 70%, rgba(196, 181, 253, 0.18) 0%, transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(252, 165, 165, 0.15) 0%, transparent 28%),
+        radial-gradient(circle at 15% 85%, rgba(134, 239, 172, 0.2) 0%, transparent 30%),
+        repeating-linear-gradient(45deg, transparent, transparent 80px, rgba(255,255,255,0.03) 80px, rgba(255,255,255,0.03) 160px),
+        linear-gradient(135deg, #fef3c7 0%, #ddd6fe 25%, #bfdbfe 50%, #fce7f3 75%, #d1fae5 100%);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+      display:flex; align-items:center; justify-content:center; padding:22px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Floating shapes for fun background */
+    body::before {
+      content: '⭐ 🌟 ✨ 🎨 🎪 🎯 🎲 🧩 🎈 🌈';
+      position: fixed;
+      top: -100px;
+      left: 0;
+      right: 0;
+      font-size: 40px;
+      letter-spacing: 100px;
+      opacity: 0.08;
+      animation: floatShapes 60s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    body::after {
+      content: '🍬 🍭 🎁 ⚡ 💫 🌸 🦋 🐝 🌺 🍀';
+      position: fixed;
+      bottom: -100px;
+      left: 0;
+      right: 0;
+      font-size: 35px;
+      letter-spacing: 120px;
+      opacity: 0.08;
+      animation: floatShapes 70s linear infinite reverse;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    @keyframes floatShapes {
+      0% { transform: translateX(-100px) translateY(0px); }
+      50% { transform: translateX(100px) translateY(-20px); }
+      100% { transform: translateX(-100px) translateY(0px); }
+    }
+    .app{ width:min(1400px, 100%); display:grid; grid-template-columns: 0.9fr 1.3fr 1fr; gap:18px; position: relative; z-index: 1; }
+    @media (max-width: 1200px){ .app{grid-template-columns: 1fr; } .card:nth-child(2){ order: -1; } }
+    @media (max-width: 900px){ .app{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card); border:1px solid rgba(255,255,255,.55);
+      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter: blur(10px);
+      overflow:hidden;
+      position: relative;
+    }
+    .header{ padding:18px 18px 0 18px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px;height:44px;border-radius:16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display:grid;place-items:center;color:#fff;font-weight:900;
+      box-shadow: 0 10px 20px rgba(37,99,235,.25);
+      user-select:none;
+    }
+    .title h1{ margin:0; font-size:18px; line-height:1.15; }
+    .title p{ margin:2px 0 0 0; color:var(--muted); font-size:13px; }
+
+    .controlsWrap{
+      display:flex; flex-direction:column; gap:10px;
+      max-width: 100%;
+    }
+    .controlsLine{
+      padding:10px 12px; border-radius:999px;
+      background: rgba(255,255,255,.65);
+      border:1px solid rgba(22,33,62,.08);
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      max-width: 100%;
+    }
+    .controlsLine label{ font-size:12px; color:var(--muted); }
+    select, button, input{ font:inherit; }
+    select{
+      border-radius:12px; border:1px solid rgba(22,33,62,.12);
+      padding:8px 10px; background:#fff; outline:none;
+    }
+
+    .main{ padding:18px; }
+    .progressRow{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; }
+    .progressBar{ flex:1; height:12px; border-radius:999px; background: rgba(22,33,62,.08); overflow:hidden; }
+    .progressFill{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius:999px; transition: width .3s ease; }
+    .tiny{ font-size:12px;color:var(--muted); white-space:nowrap; }
+
+    .questionBox{
+      margin-top:16px; padding:18px; border-radius:18px;
+      background: rgba(255,255,255,.8); border:1px solid rgba(22,33,62,.08);
+      display:grid; gap:10px;
+      position:relative;
+    }
+    .question{ font-size:44px; font-weight:900; letter-spacing:.5px; text-align:center; user-select:none; }
+    .hint{ text-align:center; color:var(--muted); font-size:14px; }
+
+    .answerRow{ display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:6px; }
+    input[type="text"]{
+      width:min(240px, 90vw); padding:12px 14px; border-radius:14px;
+      border:1px solid rgba(22,33,62,.14); background:#fff; font-size:18px;
+      outline:none; text-align:center;
+    }
+    input[type="text"]:focus{ border-color: rgba(37,99,235,.55); box-shadow: 0 0 0 4px rgba(37,99,235,.15); }
+
+    .btn{
+      border:none; border-radius:14px; padding:12px 14px; font-weight:800;
+      cursor:pointer; transition: transform .05s ease, filter .2s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btnPrimary{ color:#fff; background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 10px 20px rgba(37,99,235,.22); }
+    .btnSoft{ background: rgba(22,33,62,.06); color: var(--text); border:1px solid rgba(22,33,62,.08); }
+    .btnGhost{ background: transparent; border:1px dashed rgba(22,33,62,.22); color: var(--muted); }
+
+    .startRow{ display:flex; justify-content:center; margin-top:8px; }
+    .btnStart{
+      padding:10px 16px;
+      border-radius:999px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color:#fff;
+      box-shadow: 0 12px 24px rgba(239,68,68,.18);
+      border:1px solid rgba(22,33,62,.06);
+      min-width: 160px;
+    }
+
+    .feedback{ margin-top:10px; text-align:center; font-weight:800; font-size:18px; min-height:24px; animation: fadeIn 0.3s ease; }
+    .good{ color: var(--good); }
+    .bad{ color: var(--bad); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Right panel */
+    .side{ padding:18px; display:grid; gap:14px; }
+    .row{ display:flex; gap:12px; align-items:stretch; flex-wrap:wrap; }
+    .stats{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; width:100%; }
+    .stat{
+      padding:14px; border-radius:18px; background: rgba(255,255,255,.8);
+      border:1px solid rgba(22,33,62,.08);
+    }
+    .stat .k{ font-size:12px; color:var(--muted); }
+    .stat .v{ margin-top:6px; font-size:22px; font-weight:900; }
+
+    .playerCard{
+      padding:14px; border-radius:18px; background: rgba(255,255,255,.8);
+      border:1px solid rgba(22,33,62,.08);
+      display:flex; gap:12px; align-items:center;
+    }
+
+    /* Avatar image container */
+    .avatar{
+      width:92px;height:92px;border-radius:18px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.75);
+      border:1px solid rgba(22,33,62,.08);
+      user-select:none;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    #avatarImg{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      transform-origin:center;
+      transition: transform .18s ease, filter .18s ease;
+    }
+
+    .playerText .hello{ font-weight:900; }
+    .playerText .small{ color:var(--muted); font-size:12px; margin-top:2px; }
+
+    .stars{
+      display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+      padding:14px; border-radius:18px; background: rgba(255,255,255,.8);
+      border:1px solid rgba(22,33,62,.08);
+    }
+    .star{ font-size:22px; filter: grayscale(1); opacity:.35; transition: filter .2s ease, opacity .2s ease, transform .2s ease; }
+    .star.on{ filter:none; opacity:1; transform: translateY(-1px); }
+
+    .tips{
+      padding:14px; border-radius:18px;
+      background: rgba(255,255,255,.8); border:1px solid rgba(22,33,62,.08);
+      color: var(--muted); font-size:13px; line-height:1.45;
+    }
+    .tips b{ color: var(--text); }
+
+    .footerActions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+    /* Leaderboard styles */
+    .leaderboardCard .side{ padding:18px; display:flex; flex-direction:column; gap:16px; }
+    
+    .leaderboardHeader{ text-align:center; }
+    .leaderboardTitle{ 
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      margin-bottom:4px;
+    }
+    .leaderboardTitle h2{ 
+      margin:0; font-size:20px; font-weight:900; 
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .trophy{ font-size:28px; }
+    .leaderboardSubtitle{ 
+      color:var(--muted); font-size:13px; 
+    }
+
+    .leaderboardList{
+      display:flex; flex-direction:column; gap:8px;
+      max-height:380px;
+      overflow-y:auto;
+      padding-right:4px;
+    }
+    .leaderboardList::-webkit-scrollbar{ width:6px; }
+    .leaderboardList::-webkit-scrollbar-track{ background:rgba(22,33,62,.05); border-radius:10px; }
+    .leaderboardList::-webkit-scrollbar-thumb{ background:rgba(22,33,62,.15); border-radius:10px; }
+    .leaderboardList::-webkit-scrollbar-thumb:hover{ background:rgba(22,33,62,.25); }
+
+    .leaderboardEntry{
+      display:flex; align-items:center; gap:12px;
+      padding:10px 12px; border-radius:14px;
+      background:rgba(255,255,255,.6);
+      border:1px solid rgba(22,33,62,.08);
+      transition: all .2s ease;
+    }
+    .leaderboardEntry:hover{
+      background:rgba(255,255,255,.85);
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(22,33,62,.08);
+    }
+    .leaderboardEntry.highlight{
+      background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(168,85,247,.12));
+      border-color: rgba(37,99,235,.25);
+      font-weight:700;
+    }
+
+    .leaderboardRank{
+      font-size:16px; font-weight:900;
+      min-width:32px;
+      height:32px;
+      display:grid; place-items:center;
+      border-radius:10px;
+      background:rgba(22,33,62,.08);
+      color:var(--text);
+    }
+    .leaderboardEntry:nth-child(1) .leaderboardRank{
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color:#fff;
+      box-shadow: 0 4px 12px rgba(251,191,36,.3);
+    }
+    .leaderboardEntry:nth-child(2) .leaderboardRank{
+      background: linear-gradient(135deg, #d1d5db, #9ca3af);
+      color:#fff;
+      box-shadow: 0 4px 12px rgba(156,163,175,.3);
+    }
+    .leaderboardEntry:nth-child(3) .leaderboardRank{
+      background: linear-gradient(135deg, #fb923c, #ea580c);
+      color:#fff;
+      box-shadow: 0 4px 12px rgba(251,146,60,.3);
+    }
+
+    .leaderboardInfo{ flex:1; display:flex; flex-direction:column; gap:2px; }
+    .leaderboardName{ font-weight:700; font-size:14px; }
+    .leaderboardMeta{ font-size:11px; color:var(--muted); display:flex; gap:8px; align-items:center; }
+    .leaderboardScore{ 
+      font-weight:900; font-size:18px; 
+      color:var(--accent);
+      min-width:45px;
+      text-align:right;
+    }
+
+    .playerNameSection{
+      padding:14px; border-radius:18px;
+      background:rgba(255,255,255,.8);
+      border:1px solid rgba(22,33,62,.08);
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .nameLabel{ 
+      font-weight:700; font-size:13px; color:var(--text);
+    }
+    .nameInput{
+      width:100%; padding:10px 12px; border-radius:12px;
+      border:1px solid rgba(22,33,62,.14); background:#fff;
+      font-size:15px; outline:none;
+    }
+    .nameInput:focus{
+      border-color:rgba(37,99,235,.55);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+    .nameHint{
+      font-size:11px; color:var(--muted);
+    }
+
+    .emptyLeaderboard{
+      text-align:center; padding:40px 20px;
+      color:var(--muted); font-size:14px;
+    }
+    .emptyLeaderboard .bigEmoji{ font-size:48px; margin-bottom:12px; opacity:.5; }
+
+    /* Bigger timer */
+    .timerPill{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:10px 14px; border-radius:999px;
+      background: rgba(22,33,62,.06);
+      border: 1px solid rgba(22,33,62,.08);
+      font-size:18px; color: var(--muted);
+    }
+    .timerNum{ font-weight:900; color: var(--text); font-size:22px; }
+
+    /* Candy scene */
+    .scene{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      margin-top:8px;
+      user-select:none;
+    }
+    .jar, .bag{
+      width:64px; height:64px;
+      border-radius:18px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.75);
+      border:1px solid rgba(22,33,62,.10);
+      font-size:30px;
+    }
+    .bag{ position:relative; }
+    .bagCount{
+      position:absolute;
+      right:-8px; top:-10px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(22,33,62,.10);
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:14px;
+      font-weight:900;
+      color: var(--text);
+    }
+
+    /* Flying candy */
+    .flyingCandy{
+      position:fixed;
+      left:0; top:0;
+      transform: translate(-9999px, -9999px);
+      font-size:28px;
+      opacity:0;
+      pointer-events:none;
+      transition: transform .55s cubic-bezier(.2,.9,.2,1), opacity .12s linear;
+      z-index: 9999;
+    }
+    .flyingCandy.show{ opacity:1; }
+
+    /* Character reactions */
+    #avatar.char-happy #avatarImg{ transform: scale(1.06) rotate(-2deg); }
+    #avatar.char-sad #avatarImg{ filter: grayscale(.35) brightness(.95); transform: translateY(2px) rotate(2deg); }
+
+    @keyframes shake {
+      0%,100%{ transform: translateX(0); }
+      25%{ transform: translateX(-4px); }
+      50%{ transform: translateX(4px); }
+      75%{ transform: translateX(-3px); }
+    }
+    #avatar.char-shake #avatarImg{ animation: shake .35s ease; }
+
+    /* Character putting candy animation */
+    @keyframes putCandy {
+      0% { transform: translateX(0) scale(1); }
+      20% { transform: translateX(40px) scale(0.95) rotate(5deg); }
+      40% { transform: translateX(80px) scale(0.9) rotate(8deg); }
+      60% { transform: translateX(80px) scale(0.9) rotate(8deg); }
+      80% { transform: translateX(40px) scale(0.95) rotate(-3deg); }
+      100% { transform: translateX(0) scale(1) rotate(0deg); }
+    }
+    #avatar.char-putting #avatarImg{ animation: putCandy 0.8s ease-in-out; }
+
+    /* Confetti canvas overlay */
+    #confettiCanvas{
+    position:fixed;
+    inset:0;
+    display:none;
+    pointer-events:none;
+    z-index:99999;
+    width:100%;
+    height:100%;
+  }
+  </style>
+</head>
+
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="app">
+    <!-- Left: stats -->
+    <aside class="card">
+      <div class="side">
+        <div class="row">
+          <div class="playerCard" style="flex:1;">
+            <div class="avatar" id="avatar">
+              <img id="avatarImg" alt="Personnage" src="img/boy.png" />
+            </div>
+            <div class="playerText">
+              <div class="hello" id="hello">Salut, on joue ?</div>
+              <div class="small" id="playerTip">Choisissez Garçon/Fille, puis appuyez sur Départ.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Score</div>
+            <div class="v" id="score">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Question</div>
+            <div class="v" id="qnum">0 / 0</div>
+          </div>
+        </div>
+
+        <div class="stars" aria-label="Étoiles">
+          <span class="star" id="s1">⭐</span>
+          <span class="star" id="s2">⭐</span>
+          <span class="star" id="s3">⭐</span>
+          <span class="star" id="s4">⭐</span>
+          <span class="star" id="s5">⭐</span>
+          <span style="margin-left:8px;color:var(--muted);font-size:12px;">Les étoiles = progrès !</span>
+        </div>
+
+        <div class="tips">
+          <b>Règles adaptées aux enfants :</b><br/>
+          • Les divisions donnent toujours une réponse entière.<br/>
+          • La minuterie est facultative (OFF / 30 s / 60 s / 90 s).<br/>
+          • Les questions ne se répètent pas.
+        </div>
+
+        <div class="footerActions">
+          <button class="btn btnGhost" id="newSetBtn">Nouvelle série</button>
+          <button class="btn btnGhost" id="resetBtn">Réinitialiser</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: quiz -->
+    <section class="card">
+      <div class="header">
+        <div class="brand">
+          <div class="logo">★</div>
+          <div class="title">
+            <h1>Aventure mathématique</h1>
+            <p>3e année • joueur + minuterie (facultative) + sons</p>
+          </div>
+        </div>
+
+        <div class="controlsWrap">
+          <div class="controlsLine">
+            <label for="player">Joueur</label>
+            <select id="player">
+              <option value="boy" selected>Garçon</option>
+              <option value="girl">Fille</option>
+            </select>
+
+            <label for="mode">Mode</label>
+            <select id="mode">
+              <option value="mix" selected>Mélange (× et ÷)</option>
+              <option value="mul">Multiplication (×)</option>
+              <option value="div">Division (÷)</option>
+            </select>
+          </div>
+
+          <div class="controlsLine">
+            <label for="timer">Minuteur</label>
+            <select id="timer">
+              <option value="off" selected>OFF</option>
+              <option value="30">30 s</option>
+              <option value="60">60 s</option>
+              <option value="90">90 s</option>
+            </select>
+
+            <label for="sound">Son</label>
+            <select id="sound">
+              <option value="on" selected>ON</option>
+              <option value="off">OFF</option>
+            </select>
+
+            <label for="difficulty">Difficulté</label>
+            <select id="difficulty">
+              <option value="easy">Facile</option>
+              <option value="med" selected>Moyen</option>
+              <option value="hard">Difficile</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="progressRow">
+          <div class="progressBar" aria-label="Progression">
+            <div class="progressFill" id="progressFill"></div>
+          </div>
+          <div class="tiny" id="progressText">Prêt</div>
+        </div>
+
+        <div class="questionBox">
+          <div class="question" id="question">Appuyez sur Départ ✨</div>
+
+          <div class="hint" id="hint">
+            <span id="timerChip" class="timerPill" style="display:none;">
+              ⏱ <span class="timerNum" id="timeLeft">0</span> s restantes
+            </span>
+            <span id="hintText">Conseil : appuyez sur Entrée pour vérifier votre réponse.</span>
+          </div>
+
+          <div class="scene">
+            <div class="jar" id="jar" title="Bocal à bonbons">🍬</div>
+            <div class="bag" id="bag" title="Sac à bonbons">
+            🛍️
+            <span class="bagCount" id="bagCount">0</span>
+          </div>
+          </div>
+
+          <div class="flyingCandy" id="flyingCandy" aria-hidden="true">🍬</div>
+
+          <div class="startRow">
+            <button class="btn btnStart" id="startBtn">Départ</button>
+          </div>
+
+          <div class="answerRow">
+            <input id="answer" type="text" inputmode="numeric" placeholder="Votre réponse" disabled />
+            <button class="btn btnPrimary" id="checkBtn" disabled>Vérifier</button>
+            <button class="btn btnSoft" id="nextBtn" disabled>Suivant</button>
+          </div>
+
+          <div class="feedback" id="feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Leaderboard -->
+    <section class="card leaderboardCard">
+      <div class="side">
+        <div class="leaderboardHeader">
+          <div class="leaderboardTitle">
+            <span class="trophy">🏆</span>
+            <h2>Tableau des Champions</h2>
+          </div>
+          <div class="leaderboardSubtitle">Top 10 meilleurs joueurs</div>
+        </div>
+
+        <div class="leaderboardList" id="leaderboardList">
+          <!-- Leaderboard entries will be inserted here -->
+        </div>
+
+        <div class="playerNameSection">
+          <label for="playerName" class="nameLabel">Ton nom :</label>
+          <input type="text" id="playerName" class="nameInput" placeholder="Entre ton nom..." maxlength="20" />
+          <div class="nameHint">Entre ton nom pour apparaître dans le classement !</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  const EPS = 1e-9;
+  const el = (id) => document.getElementById(id);
+
+  const playerEl = el("player");
+  const modeEl = el("mode");
+  const diffEl = el("difficulty");
+  const timerEl = el("timer");
+  const soundEl = el("sound");
+
+  const startBtn = el("startBtn");
+  const checkBtn = el("checkBtn");
+  const nextBtn = el("nextBtn");
+  const newSetBtn = el("newSetBtn");
+  const resetBtn = el("resetBtn");
+
+  const questionEl = el("question");
+  const answerEl = el("answer");
+  const feedbackEl = el("feedback");
+  const progressFill = el("progressFill");
+  const progressText = el("progressText");
+  const scoreEl = el("score");
+  const qnumEl = el("qnum");
+
+  const helloEl = el("hello");
+  const playerTipEl = el("playerTip");
+
+  const timerChip = el("timerChip");
+  const timeLeftEl = el("timeLeft");
+  const hintTextEl = el("hintText");
+
+  const stars = [el("s1"), el("s2"), el("s3"), el("s4"), el("s5")];
+
+  // Leaderboard elements
+  const playerNameEl = el("playerName");
+  const leaderboardListEl = el("leaderboardList");
+
+  // Scene elements
+  const avatarBoxEl = el("avatar");
+  const avatarImgEl = el("avatarImg");
+  const jarEl = el("jar");
+  const bagEl = el("bag");
+  const flyingCandyEl = el("flyingCandy");
+  const bagCountEl = el("bagCount");
+  let candies = 0;
+
+  // Confetti
+  const confettiCanvas = el("confettiCanvas");
+  const ctx2d = confettiCanvas.getContext("2d");
+  let confettiId = null;
+
+  function sizeCanvas(){
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", sizeCanvas);
+  sizeCanvas();
+
+  // ----------------- Sons (Web Audio) -----------------
+  let audioCtx = null;
+  function ensureAudio() {
+    if (soundEl.value !== "on") return null;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function beep(freq=600, durMs=140, type="sine", gain=0.06) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start();
+    setTimeout(() => { try{ o.stop(); }catch(e){} }, durMs);
+  }
+  function soundCorrect(){ beep(740,120,"sine",0.06); setTimeout(()=>beep(920,140,"sine",0.06), 120); }
+  function soundWrong(){ beep(220,160,"triangle",0.07); setTimeout(()=>beep(180,200,"triangle",0.07), 170); }
+  function soundTick(){ beep(900,45,"square",0.03); }
+
+  function soundCelebrate(){
+    // petite fanfare simple
+    beep(523,120,"sine",0.06);   // C
+    setTimeout(()=>beep(659,120,"sine",0.06), 140); // E
+    setTimeout(()=>beep(784,160,"sine",0.06), 300); // G
+    setTimeout(()=>beep(1046,220,"sine",0.06), 500);// C haut
+  }
+
+  // ----------------- Animation bonbon -----------------
+  function flyCandy(){
+    if (!jarEl || !bagEl || !flyingCandyEl) return;
+
+    const from = jarEl.getBoundingClientRect();
+    const to = bagEl.getBoundingClientRect();
+
+    if (from.width === 0 || to.width === 0) return; // sécurité
+
+    const startX = from.left + from.width/2;
+    const startY = from.top + from.height/2;
+
+    const endX = to.left + to.width/2;
+    const endY = to.top + to.height/2;
+
+    flyingCandyEl.classList.remove("show");
+    flyingCandyEl.style.transform = `translate(${startX}px, ${startY}px)`;
+
+    requestAnimationFrame(() => {
+      flyingCandyEl.classList.add("show");
+      flyingCandyEl.style.transform = `translate(${endX}px, ${endY}px)`;
+    });
+
+    setTimeout(() => {
+      flyingCandyEl.classList.remove("show");
+      flyingCandyEl.style.transform = `translate(-9999px, -9999px)`;
+    }, 650);
+  }
+
+  function setHappy(){
+    avatarBoxEl.classList.remove("char-sad","char-shake");
+    avatarBoxEl.classList.add("char-happy","char-putting");
+    setTimeout(()=>{
+      avatarBoxEl.classList.remove("char-happy","char-putting");
+    }, 800);
+  }
+
+  function setSad(){
+    avatarBoxEl.classList.remove("char-happy");
+    avatarBoxEl.classList.add("char-sad","char-shake");
+    setTimeout(()=>avatarBoxEl.classList.remove("char-shake"), 400);
+  }
+
+  // ----------------- Confettis (canvas) -----------------
+  function launchConfetti(durationMs=2400){
+    if (!confettiCanvas || !ctx2d) {
+      console.error('Confetti canvas not initialized');
+      return;
+    }
+    
+    confettiCanvas.style.display = "block";
+    sizeCanvas();
+
+    const pieces = [];
+    const W = confettiCanvas.width;
+    const H = confettiCanvas.height;
+
+    if (W === 0 || H === 0) {
+      console.error('Canvas has no dimensions:', W, H);
+      return;
+    }
+
+    const N = 180;
+    for (let i=0;i<N;i++){
+      pieces.push({
+        x: Math.random()*W,
+        y: -20 - Math.random()*H*0.2,
+        vy: 2 + Math.random()*5,
+        vx: -2 + Math.random()*4,
+        r: 3 + Math.random()*5,
+        rot: Math.random()*Math.PI,
+        vr: -0.2 + Math.random()*0.4,
+        a: 1
+      });
+    }
+
+    const t0 = performance.now();
+    function frame(t){
+      const dt = (t - t0);
+      ctx2d.clearRect(0,0,W,H);
+
+      // laisser le navigateur gérer les couleurs (on ne fixe pas de palette)
+      // => on utilise HSL aléatoire par particule à chaque frame
+      for (const p of pieces){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.vy += 0.02; // gravity
+
+        const hue = (p.x + p.y) % 360;
+        ctx2d.save();
+        ctx2d.translate(p.x, p.y);
+        ctx2d.rotate(p.rot);
+        ctx2d.globalAlpha = p.a;
+        ctx2d.fillStyle = `hsl(${hue}, 85%, 60%)`;
+        ctx2d.fillRect(-p.r, -p.r, p.r*2.2, p.r*1.4);
+        ctx2d.restore();
+      }
+
+      if (dt < durationMs){
+        confettiId = requestAnimationFrame(frame);
+      } else {
+        stopConfetti();
+      }
+    }
+    stopConfetti();
+    confettiId = requestAnimationFrame(frame);
+
+    // auto hide after duration
+    setTimeout(stopConfetti, durationMs + 200);
+  }
+
+  function stopConfetti(){
+    if (confettiId) cancelAnimationFrame(confettiId);
+    confettiId = null;
+    ctx2d.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+    confettiCanvas.style.display = "none";
+  }
+
+  // ----------------- Leaderboard Management -----------------
+  function getLeaderboard(){
+    try {
+      const data = localStorage.getItem('mathLeaderboard');
+      return data ? JSON.parse(data) : [];
+    } catch(e) {
+      return [];
+    }
+  }
+
+  function saveLeaderboard(entries){
+    try {
+      localStorage.setItem('mathLeaderboard', JSON.stringify(entries));
+    } catch(e) {
+      console.error('Could not save leaderboard:', e);
+    }
+  }
+
+  function addToLeaderboard(name, score, totalQuestions, difficulty, mode){
+    if (!name || !name.trim()) return;
+    
+    const entries = getLeaderboard();
+    const timestamp = new Date().toISOString();
+    
+    entries.push({
+      name: name.trim(),
+      score: score,
+      total: totalQuestions,
+      difficulty: difficulty,
+      mode: mode,
+      percentage: Math.round((score / totalQuestions) * 100),
+      timestamp: timestamp
+    });
+    
+    // Sort by score (descending), then by percentage
+    entries.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.percentage - a.percentage;
+    });
+    
+    // Keep only top 10
+    const top10 = entries.slice(0, 10);
+    saveLeaderboard(top10);
+    renderLeaderboard();
+  }
+
+  function renderLeaderboard(){
+    const entries = getLeaderboard();
+    const currentName = playerNameEl.value.trim().toLowerCase();
+    
+    if (entries.length === 0) {
+      leaderboardListEl.innerHTML = `
+        <div class="emptyLeaderboard">
+          <div class="bigEmoji">🏆</div>
+          <div>Aucun score enregistré.<br/>Sois le premier champion !</div>
+        </div>
+      `;
+      return;
+    }
+    
+    leaderboardListEl.innerHTML = entries.map((entry, idx) => {
+      const isCurrentPlayer = entry.name.toLowerCase() === currentName && currentName !== '';
+      const modeIcon = entry.mode === 'mul' ? '×' : entry.mode === 'div' ? '÷' : '×÷';
+      const diffIcon = entry.difficulty === 'easy' ? '⭐' : entry.difficulty === 'hard' ? '⭐⭐⭐' : '⭐⭐';
+      
+      const date = new Date(entry.timestamp);
+      const dateStr = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      
+      return `
+        <div class="leaderboardEntry ${isCurrentPlayer ? 'highlight' : ''}">
+          <div class="leaderboardRank">${idx + 1}</div>
+          <div class="leaderboardInfo">
+            <div class="leaderboardName">${escapeHtml(entry.name)}</div>
+            <div class="leaderboardMeta">
+              <span>${modeIcon}</span>
+              <span>${diffIcon}</span>
+              <span>${entry.percentage}%</span>
+              <span>•</span>
+              <span>${dateStr}</span>
+            </div>
+          </div>
+          <div class="leaderboardScore">${entry.score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(text){
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // ----------------- Quiz engine -----------------
+  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function settings(diff){
+    if (diff === "easy") {
+      return { qMin: 30, qMax: 30, mulMin: 0, mulMax: 10, dMin: 2, dMax: 10, q2Min: 0, q2Max: 10, avoid01: true };
+    }
+    if (diff === "hard") {
+      return { qMin: 30, qMax: 30, mulMin: 2, mulMax: 20, dMin: 2, dMax: 12, q2Min: 2, q2Max: 20, avoid01: true };
+    }
+    return { qMin: 30, qMax: 30, mulMin: 1, mulMax: 12, dMin: 2, dMax: 12, q2Min: 1, q2Max: 12, avoid01: true };
+  }
+
+  function pickOperand(min, max, avoid01){
+    if (!avoid01) return randInt(min, max);
+    const roll = randInt(1, 100);
+    if (roll <= 6) return 0;
+    if (roll <= 18) return 1;
+    return randInt(Math.max(2, min), max);
+  }
+
+  function pickOperandEasy(min, max){
+    // Special handling for easy level: 5% for 0, 5% for 1, 5% for 10, rest distributed among 2-9
+    const roll = randInt(1, 100);
+    if (roll <= 5) return 0;
+    if (roll <= 10) return 1;
+    if (roll <= 15) return 10;
+    // 85% chance for numbers 2-9 (8 numbers)
+    return randInt(2, 9);
+  }
+
+  function buildQuiz() {
+    const s = settings(diffEl.value);
+    const total = randInt(s.qMin, s.qMax);
+    const asked = new Set();
+    const out = [];
+    const isEasy = diffEl.value === "easy";
+
+    function addMul(){
+      let guard = 0;
+      while(true){
+        guard++;
+        if (guard > 2000) break;
+
+        const a = isEasy ? pickOperandEasy(s.mulMin, s.mulMax) : pickOperand(s.mulMin, s.mulMax, s.avoid01);
+        const b = isEasy ? pickOperandEasy(s.mulMin, s.mulMax) : pickOperand(s.mulMin, s.mulMax, s.avoid01);
+
+        const x = Math.min(a,b);
+        const y = Math.max(a,b);
+        const key = `M:${x}*${y}`;
+
+        if (asked.has(key)) continue;
+        asked.add(key);
+        out.push({ text: `${a} × ${b}`, ans: a*b, kind:"mul" });
+        return;
+      }
+    }
+
+    function addDiv(){
+      let guard = 0;
+      while(true){
+        guard++;
+        if (guard > 2000) break;
+
+        const d = randInt(s.dMin, s.dMax);
+        const q = isEasy ? pickOperandEasy(s.q2Min, s.q2Max) : pickOperand(s.q2Min, s.q2Max, s.avoid01);
+        const n = d * q;
+
+        const key = `D:${n}/${d}`;
+        if (asked.has(key)) continue;
+        asked.add(key);
+        out.push({ text: `${n} ÷ ${d}`, ans: q, kind:"div" });
+        return;
+      }
+    }
+
+    const mode = modeEl.value;
+    if (mode === "mul") { while(out.length < total) addMul(); return out; }
+    if (mode === "div") { while(out.length < total) addDiv(); return out; }
+
+    const half = Math.floor(total / 2);
+    while(out.length < half) addMul();
+    while(out.length < total) addDiv();
+
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = randInt(0, i);
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  }
+
+  // ----------------- State -----------------
+  let quiz = [];
+  let idx = 0;
+  let score = 0;
+  let checked = false;
+
+  // Timer state
+  let timerId = null;
+  let timeLeft = 0;
+
+  function timerSeconds(){
+    const v = timerEl.value;
+    if (v === "off") return 0;
+    return Number(v);
+  }
+
+  function stopTimer(){
+    if (timerId) clearInterval(timerId);
+    timerId = null;
+    timerChip.style.display = "none";
+  }
+
+  function startTimer(){
+    stopTimer();
+    const secs = timerSeconds();
+    if (!secs) return;
+
+    timeLeft = secs;
+    timeLeftEl.textContent = String(timeLeft);
+    timerChip.style.display = "inline-flex";
+
+    timerId = setInterval(() => {
+      timeLeft--;
+      timeLeftEl.textContent = String(timeLeft);
+
+      if (timeLeft <= 5 && timeLeft > 0) soundTick();
+
+      if (timeLeft <= 0) {
+        stopTimer();
+        if (!checked) {
+          checked = true;
+          feedbackEl.textContent = `⏱ Temps écoulé ! Réponse : ${quiz[idx].ans}`;
+          feedbackEl.className = "feedback bad";
+          setSad();
+          soundWrong();
+          checkBtn.disabled = true;
+          nextBtn.disabled = false;
+          nextBtn.focus();
+        }
+      }
+    }, 1000);
+  }
+
+  function updatePlayerUI(){
+    const p = playerEl.value;
+    if (p === "girl") {
+      avatarImgEl.src = "img/girl.png";
+      helloEl.textContent = "Salut, on joue ?";
+    } else {
+      avatarImgEl.src = "img/boy.png";
+      helloEl.textContent = "Salut, on joue ?";
+    }
+    playerTipEl.textContent = "Essaie de gagner des ⭐ étoiles !";
+  }
+
+  function updateStars(){
+    const earned = Math.min(5, Math.floor(score / 2));
+    stars.forEach((s, i) => s.classList.toggle("on", i < earned));
+  }
+
+  function updateProgress(){
+    const total = quiz.length || 0;
+    const pct = total ? Math.round((idx / total) * 100) : 0;
+    progressFill.style.width = `${pct}%`;
+    progressText.textContent = total ? `Progression : ${idx} / ${total}` : "Prêt";
+    qnumEl.textContent = `${Math.min(idx+1, total)} / ${total}`;
+  }
+
+  function showQuestion(){
+    checked = false;
+    feedbackEl.textContent = "";
+    feedbackEl.className = "feedback";
+    avatarBoxEl.classList.remove("char-sad","char-happy","char-shake");
+
+    answerEl.value = "";
+    answerEl.disabled = false;
+    answerEl.focus();
+
+    checkBtn.disabled = false;
+    nextBtn.disabled = true;
+
+    const q = quiz[idx];
+    questionEl.textContent = `${q.text} = ?`;
+    hintTextEl.textContent = (q.kind === "div")
+      ? "Conseil division : quel nombre × le diviseur donne le dividende ?"
+      : "Conseil multiplication : découpe en petits calculs.";
+
+    updateProgress();
+    startTimer();
+  }
+
+  function finish(){
+    stopTimer();
+    questionEl.textContent = "Terminé ! 🎉";
+    hintTextEl.textContent = "Clique sur « Nouvelle série » pour rejouer.";
+    answerEl.disabled = true;
+    checkBtn.disabled = true;
+    nextBtn.disabled = true;
+
+    progressFill.style.width = "100%";
+    progressText.textContent = `Fini • Score ${score} / ${quiz.length}`;
+    qnumEl.textContent = `${quiz.length} / ${quiz.length}`;
+
+    // Save to leaderboard if player has entered a name
+    const playerName = playerNameEl.value.trim();
+    if (playerName) {
+      addToLeaderboard(playerName, score, quiz.length, diffEl.value, modeEl.value);
+    }
+
+    // Celebration
+    launchConfetti(2400);
+    soundCelebrate();
+  }
+
+  function start(){
+    updatePlayerUI();
+    ensureAudio(); // unlock audio on first click
+
+    quiz = buildQuiz();
+    idx = 0;
+    checked = false;
+    score = 0;
+    scoreEl.textContent = "0";
+    updateStars();
+
+    updateProgress();
+
+    if (!quiz.length) {
+      questionEl.textContent = "Aucune question générée";
+      return;
+    }
+    showQuestion();
+  }
+
+  function check(){
+    if (!quiz.length || checked) return;
+
+    const raw = answerEl.value.trim().replace(",", ".");
+    if (!raw) return;
+
+    const user = Number(raw);
+    if (Number.isNaN(user)) return;
+
+    stopTimer();
+
+    const correct = quiz[idx].ans;
+    const ok = Math.abs(user - correct) < EPS;
+
+    checked = true;
+
+    if (ok) {
+      score++;
+      scoreEl.textContent = String(score);
+      updateStars();
+      feedbackEl.textContent = "✔ Bravo !";
+      feedbackEl.className = "feedback good";
+      setHappy();
+      soundCorrect();
+      
+      // Delay candy flight slightly so character "picks it up" first
+      setTimeout(() => {
+        flyCandy();
+        candies++;
+        bagCountEl.textContent = String(candies);
+      }, 300);
+    } else {
+      feedbackEl.textContent = `✘ Pas tout à fait... La bonne réponse est ${correct}.`;
+      feedbackEl.className = "feedback bad";
+      // Force reflow to restart animation
+      void feedbackEl.offsetWidth;
+      setSad();
+      soundWrong();
+    }
+
+    checkBtn.disabled = true;
+    nextBtn.disabled = false;
+    nextBtn.focus();
+  }
+
+  function next(){
+    if (!quiz.length || !checked) return;
+    idx++;
+    if (idx >= quiz.length) finish();
+    else showQuestion();
+  }
+
+  function newSet(){
+    stopTimer();
+    stopConfetti();
+    quiz = buildQuiz();
+    idx = 0;
+    candies = 0;
+    bagCountEl.textContent = "0";
+    checked = false;
+    if (quiz.length) showQuestion();
+  }
+
+  function resetScore(){
+    stopTimer();
+    stopConfetti();
+
+    // reset score + bonbons
+    score = 0;
+    candies = 0;
+    scoreEl.textContent = "0";
+    bagCountEl.textContent = "0";
+    updateStars();
+
+    // reset quiz state
+    quiz = [];
+    idx = 0;
+    checked = false;
+
+    // reset UI to initial state
+    feedbackEl.textContent = "";
+    feedbackEl.className = "feedback";
+    avatarBoxEl.classList.remove("char-sad","char-happy","char-shake");
+    
+    // Reset question display
+    questionEl.textContent = "Appuyez sur Départ ✨";
+    hintTextEl.textContent = "Conseil : appuyez sur Entrée pour vérifier votre réponse.";
+    
+    // Disable input and buttons
+    answerEl.value = "";
+    answerEl.disabled = true;
+    checkBtn.disabled = true;
+    nextBtn.disabled = true;
+    
+    // Reset progress bar
+    progressFill.style.width = "0%";
+    progressText.textContent = "Prêt";
+    qnumEl.textContent = "0 / 0";
+    
+    // Update player UI
+    updatePlayerUI();
+  }
+
+  // Events
+  playerEl.addEventListener("change", updatePlayerUI);
+  startBtn.addEventListener("click", start);
+  checkBtn.addEventListener("click", check);
+  nextBtn.addEventListener("click", next);
+  newSetBtn.addEventListener("click", newSet);
+  resetBtn.addEventListener("click", resetScore);
+
+  answerEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission
+      if (!checkBtn.disabled) {
+        check();
+      }
+    }
+  });
+
+  // Update leaderboard when name changes
+  playerNameEl.addEventListener("input", () => {
+    renderLeaderboard();
+  });
+
+  // Initial UI
+  updatePlayerUI();
+  updateStars();
+  updateProgress();
+  renderLeaderboard();
+})();
+</script>
+</body>
+</html>
